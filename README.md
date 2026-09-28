@@ -46,18 +46,27 @@ python -m dictionary_learning.scripts.train_opd_crosscoders \
 
 ## Key Findings
 
-- **The swap readout.** We read each student checkpoint on its own through a sparse crosscoder, by
-  placing its activation in both student slots and keeping the teacher's activation fixed. This
-  measures how training changes the student's use of every feature, even for checkpoints the
-  crosscoder has never seen.
-- **OPD creates no new features.** Across three OPD settings, no feature is gained or lost, the
-  teacher's own features are not passed on, and over 98% of the student's frequently used features
-  change their firing rate by less than 20%.
-- **Large changes sit at decision tokens.** Features for words such as *Wait*, *Hmm*, and *So*
-  are strongly over-represented among the features OPD changes most.
-- **The SFT warm-up reweights too.** It adds no features. It does part of OPD's work in advance and
-  changes features in ways that OPD alone would not, and imposing its feature change on a directly
-  distilled student, without changing any weights, recovers most of the warm-up's benefit.
+We read each student checkpoint on its own with the **swap readout**, which places its activation in
+both student slots of a sparse crosscoder and keeps the teacher's activation fixed. This measures how
+training changes the student's use of every feature, even for checkpoints the crosscoder has never seen.
+
+1. **OPD creates no new features.** Across three OPD settings, no feature is gained or lost, and over
+   98% of the student's frequently used features change their firing rate by less than 20%.
+2. **The teacher's own features stay with the teacher.** The 7B teachers dominate 42 and 30 features.
+   OPD does not pass them on: the student's share of their decoder norm is the same before and after
+   OPD.
+3. **Large changes sit at decision tokens.** Features for words such as *Wait*, *Hmm*, and *So* are
+   strongly over-represented among the features OPD changes most, and the teacher disagrees with the
+   student most at these words.
+4. **The SFT warm-up adds no features either.** SFT on the teacher's own rollouts, which makes OPD more
+   effective, keeps every feature shared and gives the student none of the teacher's own features.
+5. **It reweights the shared features in two ways.** First, it already raises and lowers many of the
+   features that OPD later raises and lowers, doing part of OPD's work in advance. Second, it changes
+   features in ways that OPD alone would not, most notably those for the conversation format, the style
+   of reasoning, and mathematical notation, and these changes persist through OPD.
+6. **This reweighting carries the warm-up's benefit.** Imposing the warm-up's feature change on a
+   directly distilled student, without changing any weights, recovers most of the warm-up's benefit;
+   removing it from the warmed-up student removes most of it.
 
 ## Repository Structure
 
