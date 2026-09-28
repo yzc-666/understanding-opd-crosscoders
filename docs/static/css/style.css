@@ -49,7 +49,41 @@ h1, h2, h3 { font-family: "Source Serif 4", Georgia, serif; line-height: 1.25; }
 
 h1 { margin: 0; font-size: clamp(32px, 5vw, 46px); }
 
-.subtitle { margin: 10px 0 28px; font-size: clamp(18px, 2.4vw, 22px); color: var(--muted); }
+.subtitle { margin: 10px 0 22px; font-size: clamp(18px, 2.4vw, 22px); color: var(--muted); }
+
+.authors {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 26px;
+  margin: 0 0 10px;
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.authors sup, .affiliations sup, .corresponding sup { font-size: 11px; color: var(--terracotta-dark); }
+
+.affiliations {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px 20px;
+  margin: 0 0 4px;
+  font-size: 14.5px;
+  color: var(--muted);
+}
+
+.corresponding { margin: 0 0 26px; font-size: 13px; color: var(--muted); }
+
+.mail {
+  width: 1.15em;
+  height: 0.9em;
+  vertical-align: -0.1em;
+  fill: none;
+  stroke: var(--terracotta-dark);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
 
 .buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 32px; }
 
