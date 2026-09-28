@@ -70,15 +70,6 @@ understanding-opd-crosscoders/
 └── docs/                          project page
 ```
 
-## Release Plan
-
-- [x] Crosscoder training
-- [ ] Swap readout
-- [ ] Feature statistics and decision-token analysis
-- [ ] Decomposition of the warm-up's reweighting
-- [ ] Feature-level intervention
-- [ ] Scripts that reproduce every figure
-
 ## Citation
 
 A BibTeX entry will be added when the paper is public.
