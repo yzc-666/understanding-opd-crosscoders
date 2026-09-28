@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Understanding On-Policy Distillation: A Mechanistic Interpretability Perspective via Sparse Crosscoders</title>
-  <meta name="description" content="On-policy distillation creates no new features in the student. It reweights the features the student already shares with the teacher, and so does the SFT warm-up that commonly precedes it.">
+  <meta name="description" content="This work reveals that on-policy distillation improves reasoning primarily by reshaping how students use existing representations, offering a mechanistic account of what stronger teachers actually teach.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Understanding On-Policy Distillation">
-  <meta property="og:description" content="OPD creates no new features in the student; it reweights the features the student already shares with the teacher.">
+  <meta property="og:description" content="On-policy distillation improves reasoning primarily by reshaping how students use existing representations.">
   <meta property="og:image" content="https://yzc-666.github.io/understanding-opd-crosscoders/static/images/overview.png">
   <meta property="og:url" content="https://yzc-666.github.io/understanding-opd-crosscoders/">
   <meta name="twitter:card" content="summary_large_image">
@@ -26,13 +26,13 @@
     <!-- Authors and affiliations go here once the paper is public. -->
     <nav class="buttons">
       <span class="button disabled" title="Coming soon">Paper <small>coming soon</small></span>
-      <a class="button" href="https://github.com/yzc-666/understanding-opd-crosscoders">Code <small>coming soon</small></a>
+      <a class="button" href="https://github.com/yzc-666/understanding-opd-crosscoders">Code</a>
       <a class="button" href="#citation">BibTeX</a>
     </nav>
     <div class="tldr">
-      <strong>TL;DR.</strong> On-policy distillation (OPD) does not give the student new features.
-      It reweights the features the student already shares with the teacher, and so does the
-      SFT warm-up on the teacher's rollouts that commonly precedes it.
+      <strong>TL;DR.</strong> This work reveals that on-policy distillation improves reasoning primarily
+      by reshaping how students use existing representations, offering a mechanistic account of what
+      stronger teachers actually teach.
     </div>
   </div>
 </header>
@@ -66,7 +66,7 @@
       </article>
       <article class="card">
         <span class="num">3</span>
-        <h3>The largest changes sit at decision tokens</h3>
+        <h3>Large changes sit at decision tokens</h3>
         <p>Features for words such as <i>Wait</i>, <i>Hmm</i>, and <i>So</i> are strongly
           over-represented among the features OPD changes most, and the teacher disagrees with the
           student most at these words.</p>
@@ -132,7 +132,7 @@
   </section>
 
   <section>
-    <h2>The largest changes sit at decision tokens</h2>
+    <h2>Large changes sit at decision tokens</h2>
     <p>Decision-token features make up 0.4% of all features but 12% of the 50 features OPD changes most
       under JustRL and 4% under Skywork. OPD moves these features toward the teacher's usage, and it is at
       these tokens that the teacher disagrees with the student most.</p>
@@ -221,11 +221,12 @@
 
   <section id="code">
     <h2>Code</h2>
-    <p>The code is being cleaned up and will be released in the
-      <a href="https://github.com/yzc-666/understanding-opd-crosscoders">GitHub repository</a>. It will include:</p>
+    <p>The crosscoder training code is available in
+      <a href="https://github.com/yzc-666/understanding-opd-crosscoders/tree/main/crosscoder"><code>crosscoder/</code></a>:
+      building the shared token stream, caching activations, and training the heterogeneous BatchTopK
+      crosscoders with the paper's hyperparameters. Coming soon:</p>
     <ul>
-      <li>the swap readout for BatchTopK crosscoders;</li>
-      <li>crosscoder training configurations for the student, the OPD student, and the teacher;</li>
+      <li>the swap readout;</li>
       <li>scripts for feature statistics, decision-token analysis, and the decomposition of the warm-up's reweighting;</li>
       <li>the feature-level intervention used in the causal test;</li>
       <li>scripts that reproduce every figure.</li>

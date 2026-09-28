@@ -1,12 +1,12 @@
 # Understanding On-Policy Distillation: A Mechanistic Interpretability Perspective via Sparse Crosscoders
 
-[**Project page**](https://yzc-666.github.io/understanding-opd-crosscoders/) · **Paper** (coming soon) · **Code** (coming soon)
+[**Project page**](https://yzc-666.github.io/understanding-opd-crosscoders/) · **Paper** (coming soon) · [**Crosscoder training code**](crosscoder)
 
 ![Overview](docs/static/images/overview.png)
 
-**TL;DR.** On-policy distillation (OPD) does not give the student new features. It reweights the
-features the student already shares with the teacher, and so does the SFT warm-up on the teacher's
-rollouts that commonly precedes it.
+**TL;DR.** This work reveals that on-policy distillation improves reasoning primarily by reshaping how
+students use existing representations, offering a mechanistic account of what stronger teachers actually
+teach.
 
 ## Key findings
 
@@ -17,7 +17,7 @@ rollouts that commonly precedes it.
 - **OPD creates no new features.** Across three OPD settings, no feature is gained or lost, the
   teacher's own features are not passed on, and over 98% of the student's frequently used features
   change their firing rate by less than 20%.
-- **The largest changes sit at decision tokens.** Features for words such as *Wait*, *Hmm*, and *So*
+- **Large changes sit at decision tokens.** Features for words such as *Wait*, *Hmm*, and *So*
   are strongly over-represented among the features OPD changes most.
 - **The SFT warm-up reweights too.** It adds no features. Imposing its feature change on a directly
   distilled student, without changing any weights, recovers most of the warm-up's benefit, whereas the
@@ -25,14 +25,10 @@ rollouts that commonly precedes it.
 
 ## Code
 
-Coming soon. The release will include:
-
-- the swap readout for BatchTopK crosscoders;
-- crosscoder training configurations;
-- scripts for feature statistics, decision-token analysis, and the decomposition of the warm-up's
-  reweighting;
-- the feature-level intervention;
-- scripts that reproduce every figure.
+- [`crosscoder/`](crosscoder): building the shared token stream, caching activations, and training the
+  heterogeneous BatchTopK crosscoders with the paper's hyperparameters.
+- Coming soon: the swap readout, the feature statistics and decision-token analysis, the decomposition of
+  the warm-up's reweighting, the feature-level intervention, and scripts that reproduce every figure.
 
 ## Citation
 
