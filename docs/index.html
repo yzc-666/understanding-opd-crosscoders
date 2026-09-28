@@ -72,9 +72,24 @@
       </article>
       <article class="card">
         <span class="num">4</span>
-        <h3>The SFT warm-up reweights too, and it matters</h3>
-        <p>The warm-up adds no features either. Imposing its feature change on a directly distilled
-          student, without changing any weights, recovers most of the warm-up's benefit.</p>
+        <h3>The SFT warm-up adds no features either</h3>
+        <p>SFT on the teacher's own rollouts, which makes OPD more effective, keeps every feature shared
+          and gives the student none of the teacher's own features.</p>
+      </article>
+      <article class="card">
+        <span class="num">5</span>
+        <h3>It reweights the shared features in two ways</h3>
+        <p>First, it already raises and lowers many of the features that OPD later raises and lowers,
+          doing part of OPD's work in advance. Second, it changes features in ways that OPD alone would
+          not, most notably those for the conversation format, the style of reasoning, and mathematical
+          notation, and these changes persist through OPD.</p>
+      </article>
+      <article class="card">
+        <span class="num">6</span>
+        <h3>This reweighting carries the warm-up's benefit</h3>
+        <p>Imposing the warm-up's feature change on a directly distilled student, without changing any
+          weights, recovers most of the warm-up's benefit; removing it from the warmed-up student
+          removes most of it.</p>
       </article>
     </div>
   </section>
@@ -155,17 +170,33 @@
         same way before and after the warm-up (a, b), and every feature of the warmed-up student stays
         shared with the student before it (c).</figcaption>
     </figure>
-    <p>Instead, the warm-up reweights the shared features in two ways. First, it already raises and
-      lowers many of the features that OPD later raises and lowers, doing part of OPD's work in advance.
-      Second, it changes features in ways that OPD alone would not, most notably those for the
-      conversation format, the style of reasoning, and mathematical notation, and these changes persist
-      through OPD.</p>
+    <h3 class="sub">Along and beyond OPD's direction</h3>
+    <p>Instead, the warm-up reweights the shared features. To see how this relates to OPD, we plot, for
+      every frequently used feature, its change in firing rate after the warm-up against its change after
+      OPD, both relative to the base student. If the warm-up merely did part of OPD's work, the dots would
+      lie on a line through the origin. We therefore split the warm-up's change into two parts: the part
+      <b>along OPD's direction</b>, a scaled copy of OPD's change fitted by least squares, and the part
+      <b>beyond it</b>, the scatter of the dots around this line.</p>
+    <div class="stats">
+      <div class="stat"><span class="value">0.46</span><span class="label">slope along OPD's direction: the
+        warm-up already moves the features OPD moves, about half as far</span></div>
+      <div class="stat"><span class="value">56%</span><span class="label">of the warm-up's change lies beyond
+        OPD's direction</span></div>
+      <div class="stat"><span class="value">0.69</span><span class="label">Spearman correlation of that part
+        after the warm-up and after the warm-up and OPD: it persists</span></div>
+    </div>
+    <p>The part along OPD's direction does some of OPD's work in advance: of the 50 features OPD raises
+      and lowers most, 88% and 92% already move the same way after the warm-up. The part beyond it is
+      spread over many features; those it moves most concern the conversation format, the style of
+      reasoning (features for <i>Wait</i>, <i>Alternatively</i>, and <i>But</i> fire less, and one for
+      laying out a plan step by step fires more), and mathematical notation. A random shift of the same
+      size produces no alignment (slope −0.03).</p>
     <figure class="wide">
       <img src="static/images/sft_alignment.png" alt="Warm-up change against OPD change for every feature">
       <figcaption>(a) Each dot is a feature: its change after the warm-up against its change after OPD.
-        The fitted line (slope 0.46) is the part of the warm-up's change that OPD also makes; a random
-        shift of the same size shows no such alignment. (b) Mean change of the features OPD raises and
-        lowers most.</figcaption>
+        The fitted line (slope 0.46) is the part along OPD's direction, and the scatter around it is the
+        part beyond; a random shift of the same size shows no alignment. (b) Mean change of the 50
+        features OPD raises and lowers most: the warm-up already moves them part of OPD's way.</figcaption>
     </figure>
 
     <h3 class="sub">A causal test: moving the reweighting between students</h3>
@@ -210,8 +241,15 @@
         count.</figcaption>
     </figure>
     <figure class="wide">
-      <img src="static/images/feature_cards_warmup.png" alt="Features that carry the warm-up's own reweighting">
-      <figcaption><b>Features that carry the warm-up's own reweighting (Qwen3).</b> They concern the
+      <img src="static/images/feature_cards_along.png" alt="Features that the warm-up moves along OPD's direction">
+      <figcaption><b>Features that the warm-up moves along OPD's direction (Qwen3).</b> Six of the features
+        OPD changes most. The warm-up moves each of them the way OPD does, by a smaller amount; they fire
+        when the trace settles on an answer after a long search, names a solution method, or ends an
+        attempt that does not work out, or on <i>Wait</i> and arithmetic within equations.</figcaption>
+    </figure>
+    <figure class="wide">
+      <img src="static/images/feature_cards_warmup.png" alt="Features that the warm-up moves beyond OPD's direction">
+      <figcaption><b>Features that the warm-up moves beyond OPD's direction (Qwen3).</b> They concern the
         conversation format, the style of reasoning, and mathematical notation. Their change after the
         warm-up is not a scaled-down copy of OPD's: it appears where OPD barely moves them, runs against
         OPD, or goes further than OPD.</figcaption>
