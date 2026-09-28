@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Understanding On-Policy Distillation: A Mechanistic Interpretability Perspective via Sparse Crosscoders</title>
+  <meta name="description" content="On-policy distillation creates no new features in the student. It reweights the features the student already shares with the teacher, and so does the SFT warm-up that commonly precedes it.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Understanding On-Policy Distillation">
+  <meta property="og:description" content="OPD creates no new features in the student; it reweights the features the student already shares with the teacher.">
+  <meta property="og:image" content="https://yzc-666.github.io/understanding-opd-crosscoders/static/images/overview.png">
+  <meta property="og:url" content="https://yzc-666.github.io/understanding-opd-crosscoders/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="venue">Paper coming soon</p>
+    <h1>Understanding On-Policy Distillation</h1>
+    <p class="subtitle">A Mechanistic Interpretability Perspective via Sparse Crosscoders</p>
+    <!-- Authors and affiliations go here once the paper is public. -->
+    <nav class="buttons">
+      <span class="button disabled" title="Coming soon">Paper <small>coming soon</small></span>
+      <a class="button" href="https://github.com/yzc-666/understanding-opd-crosscoders">Code <small>coming soon</small></a>
+      <a class="button" href="#citation">BibTeX</a>
+    </nav>
+    <div class="tldr">
+      <strong>TL;DR.</strong> On-policy distillation (OPD) does not give the student new features.
+      It reweights the features the student already shares with the teacher, and so does the
+      SFT warm-up on the teacher's rollouts that commonly precedes it.
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <figure class="wide">
+    <img src="static/images/overview.png" alt="Overview: OPD's training signal, the swap readout, and what changes in the student">
+    <figcaption><b>Overview.</b> (a) In OPD, the student writes a rollout and the teacher scores every
+      token; the signal is strongest at decision tokens. (b) The swap readout places a student checkpoint
+      in both student slots of the crosscoder, with the teacher's activation fixed, and reads the
+      features the checkpoint uses. (c) OPD reweights the features the student shares with the teacher
+      and acquires none of the teacher's own; the warm-up moves the student partly as OPD would and
+      partly in ways OPD does not.</figcaption>
+  </figure>
+
+  <section>
+    <h2>Findings at a glance</h2>
+    <div class="cards">
+      <article class="card">
+        <span class="num">1</span>
+        <h3>OPD creates no new features</h3>
+        <p>Across three OPD settings, no feature is gained or lost, and over <b>98%</b> of the
+          student's frequently used features change their firing rate by less than <b>20%</b>.</p>
+      </article>
+      <article class="card">
+        <span class="num">2</span>
+        <h3>The teacher's own features stay with the teacher</h3>
+        <p>The 7B teachers dominate 42 and 30 features. OPD does not pass them on: the student's share
+          of their decoder norm is the same before and after OPD.</p>
+      </article>
+      <article class="card">
+        <span class="num">3</span>
+        <h3>The largest changes sit at decision tokens</h3>
+        <p>Features for words such as <i>Wait</i>, <i>Hmm</i>, and <i>So</i> are strongly
+          over-represented among the features OPD changes most, and the teacher disagrees with the
+          student most at these words.</p>
+      </article>
+      <article class="card">
+        <span class="num">4</span>
+        <h3>The SFT warm-up reweights too, and it matters</h3>
+        <p>The warm-up adds no features either. Imposing its feature change on a directly distilled
+          student, without changing any weights, recovers most of the warm-up's benefit.</p>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2>The swap readout</h2>
+    <div class="split">
+      <div>
+        <p>A sparse crosscoder learns one dictionary of features for the student before OPD, the student
+          after OPD, and the teacher, so that the three can be compared feature by feature. Its joint
+          encoding, however, gives a single code for all three models, and decoder-based attribution
+          barely differs between two nearly identical students. Neither can tell how training changes
+          <em>when</em> the student uses a feature.</p>
+        <p>The <b>swap readout</b> places the activation of one student checkpoint in both student slots
+          and keeps the teacher's activation in the teacher slot. Because the two students' activations
+          are nearly identical in the training data, the crosscoder determines only the sum of their
+          encoders; with the same activation in both slots, the undetermined part cancels. The readout
+          therefore reads each checkpoint on its own, including checkpoints the crosscoder never saw.</p>
+      </div>
+      <figure>
+        <img src="static/images/swap_outcomes.png" alt="Four outcomes of the swap readout for one feature on one input">
+        <figcaption>Reading the student before and after training on the same input gives, for every
+          feature, one of four outcomes.</figcaption>
+      </figure>
+    </div>
+    <figure class="wide">
+      <img src="static/images/swap_trace.png" alt="The swap readout on held-out reasoning passages">
+      <figcaption><b>The swap readout on held-out reasoning text (JustRL).</b> Shading shows a feature's
+        activation; bold tokens start or stop firing after OPD. The <i>Wait</i> feature stops firing on
+        some occurrences of <i>Wait</i>, and the <i>maybe</i>/<i>perhaps</i> feature starts to fire on
+        hedging phrases, in both cases moving toward the teacher's firing count.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>OPD reweights shared features rather than acquiring new ones</h2>
+    <p>We distill a DeepSeek-R1-Distill-Qwen-1.5B student from three teachers that differ from it by RL,
+      by scale, or by both, and train one crosscoder per setting on the base student, the OPD student,
+      and the teacher.</p>
+    <table class="settings">
+      <thead><tr><th>Setting</th><th>Teacher</th><th>Differs from the student by</th></tr></thead>
+      <tbody>
+        <tr><td>JustRL</td><td>JustRL-DeepSeek-1.5B</td><td>RL</td></tr>
+        <tr><td>Skywork</td><td>Skywork-OR1-Math-7B</td><td>RL and scale</td></tr>
+        <tr><td>R1-7B</td><td>DeepSeek-R1-Distill-Qwen-7B</td><td>scale</td></tr>
+      </tbody>
+    </table>
+    <figure class="wide">
+      <img src="static/images/feature_reweighting.png" alt="MAS distributions and change in feature usage after OPD">
+      <figcaption>(a–c) The OPD student dominates no feature, and its model attribution scores match those
+        of the base student; the teachers' own features stay with the teachers. (d) After OPD, 98.2%,
+        99.6%, and 99.4% of frequently used features change their firing rate by less than 20%.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>The largest changes sit at decision tokens</h2>
+    <p>Decision-token features make up 0.4% of all features but 12% of the 50 features OPD changes most
+      under JustRL and 4% under Skywork. OPD moves these features toward the teacher's usage, and it is at
+      these tokens that the teacher disagrees with the student most.</p>
+    <figure class="wide">
+      <img src="static/images/local_reweighting.png" alt="Decision-token features among the most-changed features">
+      <figcaption>(a) Share of decision-token features among the most-changed features. (b) Under JustRL,
+        OPD moves the decision-token features toward the teacher. (c) Teacher–student disagreement at the
+        steps that emit each category of decision token, relative to the average step.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Why an SFT warm-up helps OPD</h2>
+    <p>An SFT warm-up on the teacher's rollouts commonly precedes OPD and makes it more effective.
+      Following Simple-OPD, we distill Qwen3-1.7B-Base from Qwen3-4B-Base-GRPO: with the warm-up, OPD
+      recovers <b>46%</b> of the teacher's advantage over the base student instead of <b>30%</b>.
+      A natural explanation is that the warm-up supplies new features that OPD cannot. It does not.</p>
+    <figure class="wide">
+      <img src="static/images/sft_nrn.png" alt="NRN distributions before and after the warm-up">
+      <figcaption>In two-model crosscoders, the teacher's share of the decoder norm is distributed the
+        same way before and after the warm-up (a, b), and every feature of the warmed-up student stays
+        shared with the student before it (c).</figcaption>
+    </figure>
+    <p>Instead, the warm-up reweights the shared features in two ways. First, it already raises and
+      lowers many of the features that OPD later raises and lowers, doing part of OPD's work in advance.
+      Second, it changes features in ways that OPD alone would not, most notably those for the
+      conversation format, the style of reasoning, and mathematical notation, and these changes persist
+      through OPD.</p>
+    <figure class="wide">
+      <img src="static/images/sft_alignment.png" alt="Warm-up change against OPD change for every feature">
+      <figcaption>(a) Each dot is a feature: its change after the warm-up against its change after OPD.
+        The fitted line (slope 0.46) is the part of the warm-up's change that OPD also makes; a random
+        shift of the same size shows no such alignment. (b) Mean change of the features OPD raises and
+        lowers most.</figcaption>
+    </figure>
+
+    <h3 class="sub">A causal test: moving the reweighting between students</h3>
+    <p>At every token, we decode the difference between the swap-readout codes of the student after and
+      before the warm-up and add it to the residual stream of the directly distilled student, or subtract
+      it from the student distilled after the warm-up, without changing any weights. The same change with
+      the feature identities shuffled serves as a control.</p>
+    <div class="table-wrap">
+      <table class="results">
+        <thead>
+          <tr><th>Student</th><th>AIME24</th><th>AIME25</th><th>AMC23</th><th>Avg.</th><th>Δ [95% CI]</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>OPD</td><td>10.4</td><td>7.5</td><td>37.8</td><td>18.6</td><td>–</td></tr>
+          <tr class="hl"><td class="indent">+ feature change</td><td>11.2</td><td>7.1</td><td>45.6</td><td><b>21.3</b></td><td><b>+2.7</b> [+0.5, +6.0]</td></tr>
+          <tr><td class="indent">+ shuffled change</td><td>7.5</td><td>4.6</td><td>35.6</td><td>15.9</td><td>−2.7 [−5.4, +0.3]</td></tr>
+          <tr class="group"><td>Warm-up + OPD</td><td>12.5</td><td>9.2</td><td>44.1</td><td>21.9</td><td>–</td></tr>
+          <tr class="hl"><td class="indent">− feature change</td><td>10.0</td><td>7.1</td><td>40.6</td><td><b>19.2</b></td><td><b>−2.7</b> [−5.3, −0.4]</td></tr>
+          <tr><td class="indent">− shuffled change</td><td>14.2</td><td>9.2</td><td>46.9</td><td>23.4</td><td>+1.5 [−0.8, +4.1]</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">avg@8 (%) with 8 samples per problem. Adding the warm-up's feature change brings the
+      directly distilled student close to the warmed-up one; removing it brings the warmed-up student
+      close to direct OPD. The shuffled change does neither.</p>
+
+    <div class="takeaway">
+      <strong>Takeaway.</strong> OPD behaves more like a <em>reweighting</em> of existing features than an
+      <em>acquisition</em> of new ones: the student learns from the teacher how to use the features they
+      already share.
+    </div>
+  </section>
+
+  <section id="code">
+    <h2>Code</h2>
+    <p>The code is being cleaned up and will be released in the
+      <a href="https://github.com/yzc-666/understanding-opd-crosscoders">GitHub repository</a>. It will include:</p>
+    <ul>
+      <li>the swap readout for BatchTopK crosscoders;</li>
+      <li>crosscoder training configurations for the student, the OPD student, and the teacher;</li>
+      <li>scripts for feature statistics, decision-token analysis, and the decomposition of the warm-up's reweighting;</li>
+      <li>the feature-level intervention used in the causal test;</li>
+      <li>scripts that reproduce every figure.</li>
+    </ul>
+  </section>
+
+  <section id="citation">
+    <h2>Citation</h2>
+    <p>A BibTeX entry will be added when the paper is public.</p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">Understanding On-Policy Distillation · project page</div>
+</footer>
+
+</body>
+</html>
