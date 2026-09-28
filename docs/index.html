@@ -200,6 +200,25 @@
     </div>
   </section>
 
+  <section>
+    <h2>What the features encode</h2>
+    <p>Each card lists a feature's strongest held-out contexts in the student before training, shaded by
+      the feature's activation, with its firing counts on the right.</p>
+    <figure class="wide">
+      <img src="static/images/feature_cards_decision.png" alt="Decision-token features that OPD reweights under JustRL">
+      <figcaption><b>Decision-token features that OPD reweights under JustRL.</b> They fire most strongly
+        on the decision words themselves, and OPD moves each of them toward the teacher's firing
+        count.</figcaption>
+    </figure>
+    <figure class="wide">
+      <img src="static/images/feature_cards_warmup.png" alt="Features that carry the warm-up's own reweighting">
+      <figcaption><b>Features that carry the warm-up's own reweighting (Qwen3).</b> They concern the
+        conversation format, the style of reasoning, and mathematical notation. Their change after the
+        warm-up is not a scaled-down copy of OPD's: it appears where OPD barely moves them, runs against
+        OPD, or goes further than OPD.</figcaption>
+    </figure>
+  </section>
+
   <section id="code">
     <h2>Code</h2>
     <p>The code is being cleaned up and will be released in the

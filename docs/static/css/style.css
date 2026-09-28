@@ -187,4 +187,5 @@ footer {
   body { font-size: 16px; }
   .cards, .split { grid-template-columns: 1fr; }
   .hero { padding-top: 44px; }
+  figure img { padding: 6px; }
 }
