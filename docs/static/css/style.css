@@ -30,11 +30,48 @@ body {
 a { color: var(--sage-dark); }
 
 .hero {
-  padding: 64px 0 40px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 56px 0 88px;
   text-align: center;
   background: linear-gradient(180deg, var(--sage-light) 0%, var(--paper) 100%);
   border-bottom: 1px solid var(--line);
 }
+
+.hero .wrap { width: 100%; }
+
+.scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  width: 40px;
+  height: 40px;
+  margin-left: -20px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: nudge 2s ease-in-out infinite;
+}
+
+.scroll-cue svg { width: 20px; height: 20px; fill: none; stroke: var(--sage-dark); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+@keyframes nudge {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue { animation: none; }
+}
+
+#overview { scroll-margin-top: 24px; }
 
 .venue {
   margin: 0 0 12px;
@@ -241,6 +278,6 @@ footer {
 @media (max-width: 720px) {
   body { font-size: 16px; }
   .cards, .split, .stats { grid-template-columns: 1fr; }
-  .hero { padding-top: 44px; }
+  .hero { padding-top: 44px; padding-bottom: 84px; }
   figure img { padding: 6px; }
 }
